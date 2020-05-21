@@ -70,7 +70,10 @@ echo "Memory USAGE"
 echo '--------'
 getMemoryUsage
 echo '--------'
-
+echo "Memory USAGE"
+echo '--------'
+getSystemUptimeReload
+echo '--------'
 echo "Logging out from the appliance and deleting the security token file. "
 
 curl -k https://$APPLIANCE_IP:$REST_PORT/ibmmq/rest/v1/login -X DELETE -H "ibm-mq-rest-csrf-token: value" -b $TOKEN_FILE -c $TOKEN_FILE

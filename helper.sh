@@ -78,12 +78,12 @@ function runmqscRest {
 #Fn that creates a directory in the appliance via REST API
 function createDir {
   #Curl command that creates the dir; requires certain variables to be set before running the fn
-  output3=$(curl -s -k https://$APPLIANCE_IP:$REST_PORT/mgmt/filestore/default/$APPLIANCE_DIR -X POST -u $USERNAME:$PASSWORD -H "ibm-mq-rest-csrf-token: value" -H "Content-Type: application/json" --data "{\"directory\":{\"name\":\"$DIR_TO_USE\"}}" )
+  output3=$(curl -s -k https://$APPLIANCE_IP:$REST_PORT/mgmt/filestore/default/$DIR_TO_USE -X POST -u $USERNAME:$PASSWORD -H "ibm-mq-rest-csrf-token: value" -H "Content-Type: application/json" --data "{\"directory\":{\"name\":\"$FOLDER_TO_USE\"}}" )
 
   #Error Handling: Ensuring the REST Call was made successfully
   if [[ `echo $output3 | jq '.result'` == "\"Directory was created.\"" ]]
   then
-    echo "$APPLIANCE_DIR/$DIR_TO_USE in $APPLIANCE_IP created successfully"
+    echo "$DIR_TO_USE/$FOLDER_TO_USE in $APPLIANCE_IP created successfully"
   else
     mkdir -p $ERROR_DIR
     echo "ERROR: createDir FAILED"
@@ -95,16 +95,13 @@ function createDir {
 #Fn that gets contents of a directory in the appliance via REST API
 function getDirContents {
   #Curl command that creates the dir; requires certain variables to be set before running the fn
-  output3=$(curl -s -k https://$APPLIANCE_IP:$REST_PORT/mgmt/filestore/default/$APPLIANCE_DIR/$DIR_TO_USE -X GET -u $USERNAME:$PASSWORD)
-  echo $output3
-
-  files=`echo $output3 | jq '.filestore.location.file[] | .name' | tr -d \" `
+  output3=$(curl -s -k https://$APPLIANCE_IP:$REST_PORT/mgmt/filestore/default/$GET_CONTENTS_DIR/$GET_CONTENTS_FOLDER -X GET -u $USERNAME:$PASSWORD)
 
   #Error Handling: If the qmgr names returned is empty, something has gone wrong!
-  if [[ `echo $output3 | jq '.location'` != "" ]]
+  if [[ `echo $output3 | jq '.filestore.location.file[] | .name' | tr -d \" ` != "" ]]
   then
-    echo "Files in $APPLIANCE_DIR are: "
-    echo $files
+    output2=`echo $output3 | jq '.filestore.location.file[] | .name' | tr -d \" `
+    files=( $output2 )
   else
     mkdir -p $ERROR_DIR
     echo "ERROR: GET Dir Contents Command FAILED"
@@ -116,12 +113,12 @@ function getDirContents {
 #Fn that deletes a dir
 function deleteDir {
   #Curl command that deletes a given dir; requires certain variables to be set
-  output3=$(curl -s -k https://$APPLIANCE_IP:$REST_PORT/mgmt/filestore/default/$APPLIANCE_DIR/$DIR_TO_USE -X DELETE -u $USERNAME:$PASSWORD -H "ibm-mq-rest-csrf-token: value")
+  output3=$(curl -s -k https://$APPLIANCE_IP:$REST_PORT/mgmt/filestore/default/$DIR_TO_USE/$FOLDER_TO_USE -X DELETE -u $USERNAME:$PASSWORD -H "ibm-mq-rest-csrf-token: value")
 
   #Error Handling: Ensuring the REST Call was made successfully
   if [[ `echo $output3 | jq '.result'` == "\"Directory was deleted.\"" ]]
   then
-    echo "$APPLIANCE_DIR/$DIR_TO_USE in $APPLIANCE_IP deleted successfully"
+    echo "$DIR_TO_USE/$FOLDER_TO_USE in $APPLIANCE_IP deleted successfully"
   else
     mkdir -p $ERROR_DIR
     echo "ERROR: deleteDir FAILED"
@@ -137,7 +134,7 @@ function putFile {
   fileContentBase64=`print $fileContent1|base64`
 
   #Curl command that creates a file in the appliance; requires certain variables to be set.
-  output3=$(curl -s -k https://$APPLIANCE_IP:$REST_PORT/mgmt/filestore/default/$APPLIANCE_DIR/$DIR_TO_USE -X POST -u $USERNAME:$PASSWORD -H "ibm-mq-rest-csrf-token: value" -H "Content-Type: application/json" --data "{
+  output3=$(curl -s -k https://$APPLIANCE_IP:$REST_PORT/mgmt/filestore/default/$DIR_TO_USE/$FOLDER_TO_USE -X POST -u $USERNAME:$PASSWORD -H "ibm-mq-rest-csrf-token: value" -H "Content-Type: application/json" --data "{
     \"file\": {
       \"name\":\"$FILE_NAME\",
       \"content\":\"$fileContentBase64\"
@@ -147,7 +144,7 @@ function putFile {
   #Error Handling: Ensuring the REST Call was made successfully
   if [[ `echo $output3 | jq '.result'` == "\"File was created.\"" ]]
   then
-    echo "$APPLIANCE_DIR/$DIR_TO_USE/$FILE_NAME in $APPLIANCE_IP created successfully"
+    echo "$DIR_TO_USE/$FOLDER_TO_USE/$FILE_NAME in $APPLIANCE_IP created successfully"
   else
     mkdir -p $ERROR_DIR
     echo "ERROR: putFile FAILED for "$controlName" with "$qmgr
@@ -156,18 +153,18 @@ function putFile {
   fi
 }
 
-#Fn that executes all the files in $APPLIANCE_DIR/$DIR_TO_USE/$FILE_NAME
+#Fn that executes all the files in $DIR_TO_USE/$FOLDER_TO_USE/$FILE_NAME
 function execFile {
   output3=$(curl -s -k https://$APPLIANCE_IP:$REST_PORT/mgmt/actionqueue/default -X POST -u $USERNAME:$PASSWORD -H "ibm-mq-rest-csrf-token: value" -H "Content-Type: application/json" --data "{
     \"ExecConfig\" : {
-      \"URL\" : \"$APPLIANCE_DIR:/$DIR_TO_USE/$FILE_NAME\"
+      \"URL\" : \"$DIR_TO_USE:/$FOLDER_TO_USE/$FILE_NAME\"
     }
   }")
 
   #Error Handling: Ensuring the REST Call was made successfully
   if [[ `echo $output3 | jq '.ExecConfig'` == "\"Operation completed.\"" ]]
   then
-    echo "$APPLIANCE_DIR/$DIR_TO_USE/$FILE_NAME in $APPLIANCE_IP executed successfully"
+    echo "$DIR_TO_USE/$FOLDER_TO_USE/$FILE_NAME in $APPLIANCE_IP executed successfully"
   else
     mkdir -p $ERROR_DIR
     echo "ERROR: execFile FAILED for" $controlName" with "$qmgr
@@ -178,12 +175,12 @@ function execFile {
 
 #Fn that shows any given config file in the appliance
 function getFile {
-  output3=$(curl -s -k https://$APPLIANCE_IP:$REST_PORT/mgmt/filestore/default/$APPLIANCE_DIR/$DIR_TO_USE/$FILENAME -X GET -u $USERNAME:$PASSWORD)
+  output3=$(curl -s -k https://$APPLIANCE_IP:$REST_PORT/mgmt/filestore/default/$DIR_TO_USE/$FOLDER_TO_USE/$FILENAME -X GET -u $USERNAME:$PASSWORD)
 
   #Error Handling: Ensuring the REST Call was made successfully
   if [[ `echo $output3 | jq '.file'` != "" ]]
   then
-    echo "$APPLIANCE_DIR/$DIR_TO_USE/$FILENAME in $APPLIANCE_IP retrieved successfully"
+    echo "$DIR_TO_USE/$FOLDER_TO_USE/$FILENAME in $APPLIANCE_IP retrieved successfully"
   else
     mkdir -p $ERROR_DIR
     echo "ERROR: getConfigFile FAILED for "$controlName
@@ -258,4 +255,13 @@ function getMemoryUsage {
     echo REST response written logged to $ERROR_DIR/$ERROR_FILE_NAME
     echo $output3 > $ERROR_DIR/$ERROR_FILE_NAME
   fi
+}
+
+
+#Fn that returns MQ Appliance Memory Usage
+function getSystemUptimeReload {
+  #Curl command to get CPU Usage;
+  output3=$(curl -s -u $USERNAME:$PASSWORD -k https://$APPLIANCE_IP:$REST_PORT/mgmt/status/default/DateTimeStatus -X GET)
+  upTime=`echo $output3 | jq '.DateTimeStatus.uptime2' | tr -d \" `
+  echo "Uptime is $upTime"
 }
