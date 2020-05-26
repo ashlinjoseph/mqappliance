@@ -40,11 +40,14 @@ function getQueueManagerNames {
   #Gets the names of the queue manager that are in "running" state
   qmgrNames=`echo $output3 | jq '.qmgr[] | select(.state == "running") | .name' | tr -d \" `
 
+  OUTPUT_FILE_NAME='getQueueManagerNames.json'
+
   #Error Handling: If the qmgr names returned is empty, something has gone wrong!
   if [[ `echo $qmgrNames` != "" ]]
   then
     echo "Queue managers running in $APPLIANCE_IP are: "
     echo $qmgrNames
+    echo $output3 > $LOG_DIR/$OUTPUT_FILE_NAME
   else
     mkdir -p $ERROR_DIR
     echo "ERROR: GET Queue Manager Names Command FAILED"
@@ -61,6 +64,7 @@ function runmqscRest {
   if [[ `echo $output3 | jq '.overallCompletionCode'` == 0 ]]
   then
     echo "$REST_MQSC executed for $qmgr successfully"
+    echo $output3 > $LOG_DIR/$OUTPUT_FILE_NAME
   else
     mkdir -p $ERROR_DIR
     echo "ERROR: RUNMQSC COMMAND FAILED"
@@ -93,7 +97,7 @@ function createDir {
 }
 
 #Fn that gets contents of a directory in the appliance via REST API
-function getDirContents {
+function listDirContents {
   #Curl command that creates the dir; requires certain variables to be set before running the fn
   output3=$(curl -s -k https://$APPLIANCE_IP:$REST_PORT/mgmt/filestore/default/$GET_CONTENTS_DIR/$GET_CONTENTS_FOLDER -X GET -u $USERNAME:$PASSWORD)
 
@@ -102,10 +106,11 @@ function getDirContents {
   then
     output2=`echo $output3 | jq '.filestore.location.file[] | .name' | tr -d \" `
     files=( $output2 )
+    echo $output3 > $LOG_DIR/$OUTPUT_FILE_NAME
   else
     mkdir -p $ERROR_DIR
     echo "ERROR: GET Dir Contents Command FAILED"
-    echo "REST response written logged to $ERROR_DIR/GetDirContentsERROR.json"
+    echo "REST response written logged to $ERROR_DIR/listDirContentsERROR.json"
     echo "$output3" > $ERROR_DIR/getDirContent.json
   fi
 }
@@ -134,7 +139,7 @@ function putFile {
   fileContentBase64=`print $fileContent1|base64`
 
   #Curl command that creates a file in the appliance; requires certain variables to be set.
-  output3=$(curl -s -k https://$APPLIANCE_IP:$REST_PORT/mgmt/filestore/default/$DIR_TO_USE/$FOLDER_TO_USE -X POST -u $USERNAME:$PASSWORD -H "ibm-mq-rest-csrf-token: value" -H "Content-Type: application/json" --data "{
+  output3=$(curl -s -k https://$APPLIANCE_IP:$REST_PORT/mgmt/filestore/default/$DIR_TO_USE/$FOLDER_TO_USE/$FILE_NAME -X PUT -u $USERNAME:$PASSWORD -H "ibm-mq-rest-csrf-token: value" -H "Content-Type: application/json" --data "{
     \"file\": {
       \"name\":\"$FILE_NAME\",
       \"content\":\"$fileContentBase64\"
@@ -145,6 +150,7 @@ function putFile {
   if [[ `echo $output3 | jq '.result'` == "\"File was created.\"" ]]
   then
     echo "$DIR_TO_USE/$FOLDER_TO_USE/$FILE_NAME in $APPLIANCE_IP created successfully"
+    echo $output3 > $LOG_DIR/$OUTPUT_FILE_NAME
   else
     mkdir -p $ERROR_DIR
     echo "ERROR: putFile FAILED for "$controlName" with "$qmgr
@@ -155,9 +161,9 @@ function putFile {
 
 #Fn that executes all the files in $DIR_TO_USE/$FOLDER_TO_USE/$FILE_NAME
 function execFile {
-  output3=$(curl -s -k https://$APPLIANCE_IP:$REST_PORT/mgmt/actionqueue/default -X POST -u $USERNAME:$PASSWORD -H "ibm-mq-rest-csrf-token: value" -H "Content-Type: application/json" --data "{
+  output3=$(curl -s -k https://$APPLIANCE_IP:$REST_PORT/mgmt/actionqueue/default -X POST -u $USERNAME:$PASSWORD --data "{
     \"ExecConfig\" : {
-      \"URL\" : \"$DIR_TO_USE:/$FOLDER_TO_USE/$FILE_NAME\"
+      \"URL\" : \"$DIR_TO_USE://$FOLDER_TO_USE/$FILE_NAME\"
     }
   }")
 
@@ -165,6 +171,7 @@ function execFile {
   if [[ `echo $output3 | jq '.ExecConfig'` == "\"Operation completed.\"" ]]
   then
     echo "$DIR_TO_USE/$FOLDER_TO_USE/$FILE_NAME in $APPLIANCE_IP executed successfully"
+    echo $output3 > $LOG_DIR/$OUTPUT_FILE_NAME
   else
     mkdir -p $ERROR_DIR
     echo "ERROR: execFile FAILED for" $controlName" with "$qmgr
@@ -220,12 +227,15 @@ function getCPUUsage {
   avgLoad5m=`echo $output3 | jq '.SystemCpuStatus.CpuLoadAvg5' | tr -d \" `
   avgLoad15m=`echo $output3 | jq '.SystemCpuStatus.CpuLoadAvg15' | tr -d \" `
 
+  OUTPUT_FILE_NAME='getCPUUsage'
+
   #Error Handling: Ensuring the REST Call was made successfully
   if [[ avgLoad1m != "" ]]
   then
     echo 'Average CPU Load in the last 1 min:' $avgLoad1m
     echo 'Average CPU Load in the last 5 min:' $avgLoad5m
     echo 'Average CPU Load in the last 15 min:' $avgLoad15m
+    echo $output3 > $LOG_DIR/$OUTPUT_FILE_NAME
   else
     mkdir -p $ERROR_DIR
     echo "ERROR: getCPUUsage FAILED for "$controlName
@@ -243,12 +253,15 @@ function getMemoryUsage {
   usedMemory=`echo $output3 | jq '.SystemMemoryStatus.UsedMemory' | tr -d \" `
   freeMemory=`echo $output3 | jq '.SystemMemoryStatus.FreeMemory' | tr -d \" `
 
+  OUTPUT_FILE_NAME='getCPUUsage'
+
   #Error Handling: Ensuring the REST Call was made successfully
   if [[ avgLoad1m != "" ]]
   then
     echo 'Total Memory:' $totalMemory
     echo 'Used Memory:' $usedMemory
     echo 'Free Memory:' $freeMemory
+    echo $output3 > $LOG_DIR/$OUTPUT_FILE_NAME
   else
     mkdir -p $ERROR_DIR
     echo "ERROR: getCPUUsage FAILED for "$controlName
