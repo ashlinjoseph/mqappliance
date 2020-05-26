@@ -82,12 +82,16 @@ function runmqscRest {
 #Fn that creates a directory in the appliance via REST API
 function createDir {
   #Curl command that creates the dir; requires certain variables to be set before running the fn
+
+  DIR_TO_USE=`echo "$FILE_PATH" | cut -d'/' -f 1`
+  FOLDER_TO_USE=`echo "$FILE_PATH" | cut -d'/' -f 2`
+
   output3=$(curl -s -k https://$APPLIANCE_IP:$REST_PORT/mgmt/filestore/default/$DIR_TO_USE -X POST -u $USERNAME:$PASSWORD -H "ibm-mq-rest-csrf-token: value" -H "Content-Type: application/json" --data "{\"directory\":{\"name\":\"$FOLDER_TO_USE\"}}" )
 
   #Error Handling: Ensuring the REST Call was made successfully
   if [[ `echo $output3 | jq '.result'` == "\"Directory was created.\"" ]]
   then
-    echo "$DIR_TO_USE/$FOLDER_TO_USE in $APPLIANCE_IP created successfully"
+    echo "$FILE_PATH in $APPLIANCE_IP created successfully"
   else
     mkdir -p $ERROR_DIR
     echo "ERROR: createDir FAILED"
@@ -118,12 +122,12 @@ function listDirContents {
 #Fn that deletes a dir
 function deleteDir {
   #Curl command that deletes a given dir; requires certain variables to be set
-  output3=$(curl -s -k https://$APPLIANCE_IP:$REST_PORT/mgmt/filestore/default/$DIR_TO_USE/$FOLDER_TO_USE -X DELETE -u $USERNAME:$PASSWORD -H "ibm-mq-rest-csrf-token: value")
+  output3=$(curl -s -k https://$APPLIANCE_IP:$REST_PORT/mgmt/filestore/default/$FILE_PATH -X DELETE -u $USERNAME:$PASSWORD -H "ibm-mq-rest-csrf-token: value")
 
   #Error Handling: Ensuring the REST Call was made successfully
   if [[ `echo $output3 | jq '.result'` == "\"Directory was deleted.\"" ]]
   then
-    echo "$DIR_TO_USE/$FOLDER_TO_USE in $APPLIANCE_IP deleted successfully"
+    echo "$FILE_PATH in $APPLIANCE_IP deleted successfully"
   else
     mkdir -p $ERROR_DIR
     echo "ERROR: deleteDir FAILED"
@@ -139,7 +143,7 @@ function putFile {
   fileContentBase64=`print $fileContent1|base64`
 
   #Curl command that creates a file in the appliance; requires certain variables to be set.
-  output3=$(curl -s -k https://$APPLIANCE_IP:$REST_PORT/mgmt/filestore/default/$DIR_TO_USE/$FOLDER_TO_USE/$FILE_NAME -X PUT -u $USERNAME:$PASSWORD -H "ibm-mq-rest-csrf-token: value" -H "Content-Type: application/json" --data "{
+  output3=$(curl -s -k https://$APPLIANCE_IP:$REST_PORT/mgmt/filestore/default/$FILE_PATH/$FILE_NAME -X PUT -u $USERNAME:$PASSWORD -H "ibm-mq-rest-csrf-token: value" -H "Content-Type: application/json" --data "{
     \"file\": {
       \"name\":\"$FILE_NAME\",
       \"content\":\"$fileContentBase64\"
@@ -149,7 +153,7 @@ function putFile {
   #Error Handling: Ensuring the REST Call was made successfully
   if [[ `echo $output3 | jq '.result'` == "\"File was created.\"" ]]
   then
-    echo "$DIR_TO_USE/$FOLDER_TO_USE/$FILE_NAME in $APPLIANCE_IP created successfully"
+    echo "$FILE_PATH/$FILE_NAME in $APPLIANCE_IP created successfully"
     echo $output3 > $LOG_DIR/$OUTPUT_FILE_NAME
   else
     mkdir -p $ERROR_DIR
@@ -159,8 +163,12 @@ function putFile {
   fi
 }
 
-#Fn that executes all the files in $DIR_TO_USE/$FOLDER_TO_USE/$FILE_NAME
+#Fn that executes all the files in $FILE_PATH/$FILE_NAME
 function execFile {
+
+  DIR_TO_USE=`echo "$FILE_PATH" | cut -d'/' -f 1`
+  FOLDER_TO_USE=`echo "$FILE_PATH" | cut -d'/' -f 2`
+
   output3=$(curl -s -k https://$APPLIANCE_IP:$REST_PORT/mgmt/actionqueue/default -X POST -u $USERNAME:$PASSWORD --data "{
     \"ExecConfig\" : {
       \"URL\" : \"$DIR_TO_USE://$FOLDER_TO_USE/$FILE_NAME\"
@@ -170,7 +178,7 @@ function execFile {
   #Error Handling: Ensuring the REST Call was made successfully
   if [[ `echo $output3 | jq '.ExecConfig'` == "\"Operation completed.\"" ]]
   then
-    echo "$DIR_TO_USE/$FOLDER_TO_USE/$FILE_NAME in $APPLIANCE_IP executed successfully"
+    echo "$FILE_PATH/$FILE_NAME in $APPLIANCE_IP executed successfully"
     echo $output3 > $LOG_DIR/$OUTPUT_FILE_NAME
   else
     mkdir -p $ERROR_DIR
@@ -182,12 +190,12 @@ function execFile {
 
 #Fn that shows any given config file in the appliance
 function getFile {
-  output3=$(curl -s -k https://$APPLIANCE_IP:$REST_PORT/mgmt/filestore/default/$DIR_TO_USE/$FOLDER_TO_USE/$FILENAME -X GET -u $USERNAME:$PASSWORD)
+  output3=$(curl -s -k https://$APPLIANCE_IP:$REST_PORT/mgmt/filestore/default/$FILE_PATH/$FILENAME -X GET -u $USERNAME:$PASSWORD)
 
   #Error Handling: Ensuring the REST Call was made successfully
   if [[ `echo $output3 | jq '.file'` != "" ]]
   then
-    echo "$DIR_TO_USE/$FOLDER_TO_USE/$FILENAME in $APPLIANCE_IP retrieved successfully"
+    echo "$FILE_PATH/$FILENAME in $APPLIANCE_IP retrieved successfully"
   else
     mkdir -p $ERROR_DIR
     echo "ERROR: getConfigFile FAILED for "$controlName
@@ -197,6 +205,21 @@ function getFile {
 
   #Decoding the file content from binary to readable text
   OUTPUT=`echo $output3 | jq '.file' | tr -d \" | base64 --decode`
+}
+
+function deleteFile {
+  output3=$(curl -s -k https://$APPLIANCE_IP:$REST_PORT/mgmt/filestore/default/$FILE_PATH_TO_DELETE/$FILE_NAME_TO_DELETE -X DELETE -u $USERNAME:$PASSWORD)
+  #Error Handling: Ensuring the REST Call was made successfully
+  if [[ `echo $output3 | jq '.result'` != null ]]
+  then
+    echo "$FILE_PATH/$FILE_NAME_TO_DELETE in $APPLIANCE_IP deleted successfully"
+  else
+    mkdir -p errors
+    ERROR_FILE_NAME="ERROR_deleteFile_$FILE_NAME.json"
+    echo "ERROR: FAILED to delete "$FILE_NAME
+    echo "REST response written logged to "$ERROR_DIR/$ERROR_FILE_NAME
+    echo $output3 > errors/$ERROR_FILE_NAME
+  fi
 }
 
 #Fn that shows any given config file in the appliance

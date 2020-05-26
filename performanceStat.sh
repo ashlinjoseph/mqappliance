@@ -56,9 +56,6 @@ stty -echo
 read PASSWORD
 stty echo
 
-# Log in to the MQ REST API to create the token required for MQ object update (POST or DELETE) calls
-curl -s -k https://$APPLIANCE_IP:$REST_PORT/ibmmq/rest/v1/login -X POST --data "{\"username\":\"$USERNAME\",\"password\":\"$PASSWORD\"}" -c $TOKEN_FILE
-
 ERROR_FILE_NAME=getCPUUsage_ERROR.json
 
 echo '--------'
@@ -74,7 +71,3 @@ echo "Memory USAGE"
 echo '--------'
 getSystemUptimeReload
 echo '--------'
-echo "Logging out from the appliance and deleting the security token file. "
-
-curl -k https://$APPLIANCE_IP:$REST_PORT/ibmmq/rest/v1/login -X DELETE -H "ibm-mq-rest-csrf-token: value" -b $TOKEN_FILE -c $TOKEN_FILE
-rm -rf $TOKEN_FILE
