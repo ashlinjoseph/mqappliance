@@ -87,33 +87,6 @@ function getAllQmgrBackupFiles {
 
 }
 
-# Getting all user config from the appliance
-function getMQApplianceUserConfig {
-  echo "Get MQ Appliance User Config"
-  controlName='getMQApplianceUserConfig'
-
-  #Setting path and filename to the auto-user.cfg in the appliance
-  CONFIG_FILE_PATH=config
-  CONFIG_FILE=auto-user.cfg
-  ERROR_FILE_NAME=$controlName"_getConfigFile_ERROR.json"
-  getConfigFile
-  echo "$OUTPUT" > $LOG_DIR/$controlName.out
-
-}
-
-#Control #9: Getting the aplpiance config file
-function getMQApplianceConfig {
-  echo "Get MQ Appliance Config"
-  controlName='getMQApplianceConfig'
-
-  #Setting path and filename to the autoconfig.cfg in the appliance
-  CONFIG_FILE_PATH=config
-  CONFIG_FILE=autoconfig.cfg
-  ERROR_FILE_NAME=$controlName"_getConfigFile_ERROR.json"
-  getConfigFile
-  echo "$OUTPUT" > $LOG_DIR/$controlName.out
-}
-
 #============================================================
 echo "Enter the username for $APPLIANCE_IP:"
 read USERNAME
