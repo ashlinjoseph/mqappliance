@@ -28,12 +28,12 @@
 
 ##  THE FOLLOWING VARIABLES MUST BE CHANGED TO SUIT YOUR APPLIANCE!
 
-APPLIANCE_IP=9.20.49.89
+APPLIANCE_IP=
 REST_PORT=5554
 
 #Linux server access details to which files are to be moved
-linuxServer=9.20.196.113
-linuxUser=root
+linuxServer=
+linuxUser=
 linuxPassword=
 linuxQmgrsBackupDir=aib/qmgrBackups
 

@@ -28,8 +28,7 @@
 
 ##  THE FOLLOWING VARIABLES MUST BE CHANGED TO SUIT YOUR APPLIANCE!
 
-APPLIANCE_IP=9.20.49.89
-TOKEN_FILE=/tmp/token.cookie
+APPLIANCE_IP=
 REST_PORT=5554
 
 #Directory to which logs are written to
