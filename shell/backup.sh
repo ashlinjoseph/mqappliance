@@ -28,14 +28,13 @@
 
 ##  THE FOLLOWING VARIABLES MUST BE CHANGED TO SUIT YOUR APPLIANCE!
 
-APPLIANCE_IP=
+APPLIANCE_IP=9.20.49.89
 REST_PORT=5554
 
 #Linux server access details to which files are to be moved
-linuxServer=
-linuxUser=
-linuxPassword=
-linuxQmgrsBackupDir=aib/qmgrBackups
+linuxServer=9.20.196.113
+linuxUser=root
+linuxQmgrsBackupDir=/root/aib/qmgrBackups
 
 #Directories to which logs and errors are written to:
 LOG_DIR=logs
@@ -76,7 +75,7 @@ function getAllQmgrBackupFiles {
     ERROR_FILE_NAME=$qmgr"_copyBackup_execFile_ERROR.json"
     execFile
 
-    fileContent1="copy mqbackup:///QMgrs/$qmgr.bak scp://$linuxUser:$linuxPassword@$linuxServer//$linuxUser/$linuxQmgrsBackupDir"
+    fileContent1="copy mqbackup:///QMgrs/$qmgr.bak scp://$linuxUser:$linuxPassword@$linuxServer/$linuxQmgrsBackupDir"
     FILE_NAME=$qmgr"_copyBackup.config"
     ERROR_FILE_NAME=$qmgr"_copyBackup_putFile_ERROR.json"
     putFile
