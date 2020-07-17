@@ -52,19 +52,29 @@ public class PerformanceTest {
 			
 			TextMessage textMessage = context.createTextMessage();
 			textMessage.setText("AJMsg");
-			prod.send(senderQueue, textMessage);
-
+			
 			Queue receiverQueue = context.createQueue(receiverQ);
 			System.out.println(dateFormat.format(new Date()) + ": Connection established to receive a message");
 			JMSConsumer consumer = context.createConsumer(receiverQueue);
-			Message message = consumer.receive(1000);
-			if(message!=null)
-			{
-				System.out.println(dateFormat.format(new Date()) + ": Message received: "+ ((TextMessage) message).getText());
+			
+			int noMsgs=100;
+			int msgCount=0;
+			System.out.println(dateFormat.format(new Date()) + ": Messaging Started!");
+			for (int i=0; i<noMsgs; i++)
+				prod.send(senderQueue, textMessage);
+			
+			
+			while(true) {
+				Message message = consumer.receive(1000);
+				if(message!=null)//&&((TextMessage) message).getText().contains("AJMsg")
+					msgCount++;
+				else {
+					System.out.println(dateFormat.format(new Date()) + ": No more msgs");
+					break;
+				}
 			}
-			else {
-				System.out.println(dateFormat.format(new Date()) + ": No Message received");
-			}
+
+			System.out.println(dateFormat.format(new Date()) + ": "+ msgCount + " msgs received!");
 			context.close();
 			
 		} catch (JMSException e) {
