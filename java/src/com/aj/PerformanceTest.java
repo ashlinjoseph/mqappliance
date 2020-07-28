@@ -26,6 +26,8 @@ public class PerformanceTest {
 		String receiverQ = "Q.AJ";
 		String APP_USER = "aj"; // User name that application uses to connect to MQ
 		String APP_PASSWORD = "app123"; // Password that the application uses to connect to MQ
+		int noMsgs=100;
+		
 		DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss:SSS");
 		
 		System.out.println(dateFormat.format(new Date())+": Connection to "+qm+" at "+hostname+":"+port + " via channel: " + channel);
@@ -57,7 +59,6 @@ public class PerformanceTest {
 			System.out.println(dateFormat.format(new Date()) + ": Connection established to receive a message");
 			JMSConsumer consumer = context.createConsumer(receiverQueue);
 			
-			int noMsgs=100;
 			int msgCount=0;
 			System.out.println(dateFormat.format(new Date()) + ": Messaging Started!");
 			for (int i=0; i<noMsgs; i++)
