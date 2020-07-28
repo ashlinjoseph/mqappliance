@@ -31,13 +31,11 @@ public class Requester {
 		int numberOfMsgs=Integer.parseInt(System.getProperty("nomsgs"));;
 
 		DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss:SSS");
-		
 		System.out.println(dateFormat.format(new Date())+": Connection to "+qmgr+" at "+hostname+":"+port + " via channel: " + channel);
 		
 		try {
 			
 			MQQueueConnectionFactory cf = new MQQueueConnectionFactory();
-	
 			cf.setIntProperty(WMQConstants.WMQ_CONNECTION_MODE, WMQConstants.WMQ_CM_CLIENT);
 			cf.setStringProperty(WMQConstants.WMQ_QUEUE_MANAGER, qmgr);
 			cf.setStringProperty(WMQConstants.WMQ_HOST_NAME, hostname);
@@ -91,14 +89,14 @@ public class Requester {
 			}
 		
 			System.out.println(dateFormat.format(new Date()) + ": "+roundTripTimes.size()+" responses received!");
-			long sum=0;
+			long totalTime=0;
 			long longestRoundTrip=0;
 			int longestRoundTripMsgNo=0;
 			long shortestRoundTrip=roundTripTimes.get(0);
 			int shortestRoundTripMsgNo=1;
 			
 		    for (int k=0; k < roundTripTimes.size();k++) {
-		        sum = sum + roundTripTimes.get(k);
+		        totalTime = totalTime + roundTripTimes.get(k);
 		        if(roundTripTimes.get(k) > longestRoundTrip){
 		        	longestRoundTrip = roundTripTimes.get(k);
 		        	longestRoundTripMsgNo = k+1;
@@ -108,11 +106,14 @@ public class Requester {
 		        	shortestRoundTripMsgNo=k+1;
 		        }
 		    }
-		    long averageRoundTripTime=sum/numberOfMsgs;
-			System.out.println(dateFormat.format(new Date()) + ": Avgerage round trip time is: "+ (averageRoundTripTime));
-			System.out.println(dateFormat.format(new Date()) + ": Longest round trip was msg no: "+ longestRoundTripMsgNo + " and round trip took " + longestRoundTrip);
-			System.out.println(dateFormat.format(new Date()) + ": Shortest round trip was msg no: "+ shortestRoundTripMsgNo + " and round trip took " + shortestRoundTrip);
-			
+		    long averageRoundTripTime=totalTime/numberOfMsgs;
+			System.out.println(dateFormat.format(new Date()) + ": Avgerage round trip time is: "+ (averageRoundTripTime)+ "milliseconds");
+		
+			System.out.println(dateFormat.format(new Date()) + ": Longest round trip was msg no: "+ longestRoundTripMsgNo + " and round trip took " + longestRoundTrip+"milliseconds");
+			System.out.println(dateFormat.format(new Date()) + ": Shortest round trip was msg no: "+ shortestRoundTripMsgNo + " and round trip took " + shortestRoundTrip+"milliseconds");
+			System.out.println(dateFormat.format(new Date()) + ": Total time taken for "+ numberOfMsgs +" round trips is: "+(totalTime/1000)+ " seconds");
+			long msgRatePerSec=numberOfMsgs/(totalTime/1000);
+			System.out.println(dateFormat.format(new Date()) + ": Message Rate is: "+ msgRatePerSec+ "/sec");
 			context.close();
 			
 		} catch (JMSException e) {
