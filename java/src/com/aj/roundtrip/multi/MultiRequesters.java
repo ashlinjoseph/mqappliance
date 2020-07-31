@@ -4,7 +4,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.List;
 
 import javax.jms.JMSConsumer;
@@ -90,7 +89,6 @@ class Requester implements Runnable {
 			
 			long startTime, stopTime;
 			
-			//System.out.println(dateFormat.format(new Date()) + ": Starting to send "+numberOfMsgs+" messages!");
 			for (int i=0; i<numberOfMsgs; i++) {
 				startTime = System.currentTimeMillis();
 				prod.send(requestQueue, reqMsgs.get(i));
@@ -101,17 +99,17 @@ class Requester implements Runnable {
 						roundTripTimes.add(stopTime - startTime);
 					}
 					else {
-						//System.out.println(dateFormat.format(new Date()) + ": Incorrect msg received: " + ((TextMessage) message).getText());
+						System.out.println(dateFormat.format(new Date()) + ": Incorrect msg received: " + ((TextMessage) message).getText());
 						System.exit(1);
 					}
 				}
 				else {
-					//System.out.println(dateFormat.format(new Date()) + ": No msg received for 4 seconds!");
+					System.out.println(dateFormat.format(new Date()) + ": No msg received for 4 seconds!");
 					System.exit(1);
 				}
 			}
 		
-			System.out.println(dateFormat.format(new Date()) + ": "+roundTripTimes.size()+" responses received on this thread!");
+			System.out.println(dateFormat.format(new Date()) + ": "+roundTripTimes.size()+" requests sent and responses received on this thread!");
 			context.close();
 			
 		} catch (JMSException e) {
@@ -186,7 +184,7 @@ public class MultiRequesters {
 		        }
 		    }
 		    long averageRoundTripTime=totalTime/numberOfMsgs;
-		    System.out.println("=======================================");
+		    System.out.println("============================================");
 		    System.out.println(dateFormat.format(new Date()) + ": THREAD No:"+ threadno);
 			System.out.println(dateFormat.format(new Date()) + ": Avgerage round trip time is: "+ (averageRoundTripTime)+ "milliseconds");
 			System.out.println(dateFormat.format(new Date()) + ": Longest round trip was msg no: "+ longestRoundTripMsgNo + " and round trip took " + longestRoundTrip+"milliseconds");
@@ -195,11 +193,13 @@ public class MultiRequesters {
 			System.out.println("\n");
 			threadno++;	
 		}
+
+	    System.out.println("============================================");
 		System.out.println(dateFormat.format(new Date()) + ": "+(numberOfMsgs*numberOfThreads)+ " round trips completed across "+numberOfThreads+" threads and it took "+ allThreadsRoundTripTime + "milliseconds");
 		
 		if(allThreadsRoundTripTime>1000) {
 			long msgRatePerSec=(numberOfMsgs*numberOfThreads)/(allThreadsRoundTripTime/1000);
-			System.out.println(dateFormat.format(new Date()) + ": Round trip rate is: "+ msgRatePerSec+ "/sec");
+			System.out.println(dateFormat.format(new Date()) + ": Total Round trip rate is: "+ msgRatePerSec+ "req-res per sec");
 		}
 		else
 			System.out.println(dateFormat.format(new Date()) + ": The entire round trip ran for less than a second to calculate the round trip per second rate.");
