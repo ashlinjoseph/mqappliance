@@ -116,22 +116,23 @@ public class MultiResponders {
 		int waitTimes = Integer.parseInt(System.getProperty("responderwaitTimes"));
 
 		final List<Responder> responders = new ArrayList<>();
+		DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss:SSS");
 
 		for (int i = 0; i < numberOfThreads; i++) {
 			responders.add(new Responder(qmgr, hostname, port, channel, requestQ, user, pwd, waitTimes));
 		}
-		System.out.println("Runnables created.");
+		System.out.println(dateFormat.format(new Date()) + ": Runnables created.");
 
 		final List<Thread> threads = new ArrayList<>();
 		for (final Responder responder : responders) {
 			threads.add(new Thread(responder));
 		}
-		System.out.println("Threads created.");
+		System.out.println(dateFormat.format(new Date()) + ": Threads created.");
 
 		for (final Thread thread : threads) {
 			thread.start();
 		}
-		System.out.println("Threads started.");
+		System.out.println(dateFormat.format(new Date()) + ": Threads started.");
 
 		for (final Thread thread : threads) {
 			try {
@@ -140,7 +141,7 @@ public class MultiResponders {
 				e.printStackTrace();
 			}
 		}
-		System.out.println("All threads completed the lifecycle.");
+		System.out.println(dateFormat.format(new Date()) + ": All threads completed the lifecycle.");
 	}
 
 }
