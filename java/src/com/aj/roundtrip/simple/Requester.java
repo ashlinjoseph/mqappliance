@@ -1,4 +1,4 @@
-package com.aj;
+package com.aj.roundtrip.simple;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -112,8 +112,13 @@ public class Requester {
 			System.out.println(dateFormat.format(new Date()) + ": Longest round trip was msg no: "+ longestRoundTripMsgNo + " and round trip took " + longestRoundTrip+"milliseconds");
 			System.out.println(dateFormat.format(new Date()) + ": Shortest round trip was msg no: "+ shortestRoundTripMsgNo + " and round trip took " + shortestRoundTrip+"milliseconds");
 			System.out.println(dateFormat.format(new Date()) + ": Total time taken for "+ numberOfMsgs +" round trips is: "+(totalTime/1000)+ " seconds");
-			long msgRatePerSec=numberOfMsgs/(totalTime/1000);
-			System.out.println(dateFormat.format(new Date()) + ": Message Rate is: "+ msgRatePerSec+ "/sec");
+			
+			if(totalTime>1000) {
+				long msgRatePerSec=numberOfMsgs/(totalTime/1000);
+				System.out.println(dateFormat.format(new Date()) + ": Round trip rate is: "+ msgRatePerSec+ "/sec");
+			}
+			else
+				System.out.println(dateFormat.format(new Date()) + ": The entire round trip ran for less than a second to calculate the round trip per second rate.");
 			context.close();
 			
 		} catch (JMSException e) {
