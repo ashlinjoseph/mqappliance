@@ -1,4 +1,4 @@
-To run Responder.java, the following Java system properties needs to be passed on:
+To run MultiResponders.java, the following Java system properties needs to be passed on:
 -Dhost=<qmgrIP>
 -Dport=<port>
 -Dchannel=<channel_name>
@@ -7,9 +7,7 @@ To run Responder.java, the following Java system properties needs to be passed o
 -Duser=<messaging_user>
 -Dpwd=<messaging_password>
 
-
-
-To run the Requester.java, first you need to make sure the Responder.java app is running and the following Java system properties needs to be passed on:
+To run the MultiRequesters.java, first you need to make sure the Responder.java app is running and the following Java system properties needs to be passed on:
 -Dhost=<qmgrIP>
 -Dport=<port>
 -Dchannel=<channel_name>
@@ -17,6 +15,8 @@ To run the Requester.java, first you need to make sure the Responder.java app is
 -DrequestQ=<queue>
 -Duser=<messaging_user>
 -Dpwd=<messaging_password>
--Dnomsgs=<number_of_messages>
+-Dnomsgs=<number_of_msgs_per_thread>
+-Dnothread=<number_of_threads>
+
 
 
