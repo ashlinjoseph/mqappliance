@@ -15,8 +15,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-#############################################################
-## File Name: sampleREST01.sh                                                 ##
+################################################################################
+## File Name: backupMessagingUser.sh                                          ##
 ##                                                                            ##
 ##    An example script that uses the restHelperLibrary.sh as an example      ##
 ##  In this script, at first all the running queue managers are listed.       ##
@@ -24,9 +24,9 @@
 ##  calls and queue manager dump. Then the script retrieves config data from  ##
 ##  the appliance.                                                            ##
 ##                                                                            ##
-#############################################################
+################################################################################
 
-##  THE FOLLOWING VARIABLES MUST BE CHANGED TO SUIT YOUR APPLIANCE!
+###################  THE FOLLOWING VARIABLES MUST BE CHANGED TO SUIT YOUR APPLIANCE!
 
 APPLIANCE_IP=9.20.49.89
 REST_PORT=5554
@@ -39,6 +39,8 @@ linuxQmgrsBackupDir=/root/aib/qmgrBackups
 #Directories to which logs and errors are written to:
 LOG_DIR=logs
 ERROR_DIR=errors
+
+###################  END OF USER DEFINED VARIABLES
 
 #Removing logs and error dir
 rm -rf $LOG_DIR
