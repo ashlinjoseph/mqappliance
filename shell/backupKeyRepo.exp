@@ -33,6 +33,12 @@ set applianceIP "127.0.0.1"
 #Change this to your appliance login
 set applianceLogin "admin"
 
+
+#Get hostname/IP of the linux server to which files are copied to
+set hostname ""
+#Get the current user
+set user ""
+
 ###################  END OF USER DEFINED VARIABLES
 
 # If it doesn't see the expected line, timeout after 10 minutes.
@@ -49,10 +55,6 @@ set appliancePassword $expect_out(1,string)
 #Set up the SCP location for the appliance to write backup files to.
 #Get current working directory
 set curDir [exec pwd]
-#Get hostname of machine
-set hostname $::env(HOSTNAME)
-#Get the current user
-set user [exec whoami]
 
 #Create a folder to back up to
 set clockFormat [clock format [clock seconds] -format %Y%m%d%H%M%S]
