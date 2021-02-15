@@ -1,5 +1,8 @@
+<<<<<<< HEAD
 package com.aj.ssl;
 
+=======
+>>>>>>> 4bacd33151ec8d72bf5f512c6f7b46ce47b5513a
 import java.io.IOException;
 import java.util.UUID;
 import java.util.logging.FileHandler;
