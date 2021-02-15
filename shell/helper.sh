@@ -16,7 +16,7 @@
 # limitations under the License.
 #
 ################################################################################
-## File Name: restHelperLibrary.sh                                            ##
+## File Name: helper.sh                                                       ##
 ##                                                                            ##
 ##    This helper library is built around some of the MQ Appliance REST API   ##
 ##  to help MQ appliance users to easily built scripts that can be used to    ##
