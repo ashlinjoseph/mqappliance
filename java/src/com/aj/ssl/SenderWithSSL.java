@@ -1,5 +1,3 @@
-package com.ibm.aj;
-
 import java.io.IOException;
 import java.util.UUID;
 import java.util.logging.FileHandler;
