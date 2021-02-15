@@ -1,4 +1,4 @@
-The application connects to the given queue manager via the given SSL enabled MQ Channel and sends a single message. 
+The application connects to the given queue in the given queue manager via the SSL enabled MQ Channel provided and sends a single message. 
 
 The following JVM properties needs to be set: 
 
