@@ -35,7 +35,7 @@ public class Responder {
 			
 			MQQueueConnectionFactory cf = new MQQueueConnectionFactory();
 	
-			cf.setIntProperty(WMQConstants.WMQ_CONNECTION_MODE, WMQConstants.WMQ_CM_BINDINGS_THEN_CLIENT);
+			cf.setIntProperty(WMQConstants.WMQ_CONNECTION_MODE, WMQConstants.WMQ_CM_CLIENT);
 			cf.setStringProperty(WMQConstants.WMQ_QUEUE_MANAGER, qmgr);
 			cf.setStringProperty(WMQConstants.WMQ_HOST_NAME, hostname);
 			cf.setIntProperty(WMQConstants.WMQ_PORT, port);

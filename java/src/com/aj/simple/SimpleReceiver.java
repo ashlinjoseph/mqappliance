@@ -1,31 +1,23 @@
 package com.aj.simple;
 
 import java.io.IOException;
-import java.util.UUID;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
+import javax.jms.JMSConsumer;
 import javax.jms.JMSContext;
 import javax.jms.JMSException;
-import javax.jms.JMSProducer;
 import javax.jms.Queue;
 import javax.jms.TextMessage;
 
 import com.ibm.mq.jms.MQQueueConnectionFactory;
 import com.ibm.msg.client.wmq.WMQConstants;
 
-/**
- * SimpleSender.java is a simple JMS sender app that can connect to a
- * queue in a queue manager using username and password as security
- * and send a simple message. 
- *  
- * */
-
-public class SimpleSender {
+public class SimpleReceiver {
 
 	public static void main(String[] args) {
-		
+
 		Logger logger = Logger.getLogger("AJLog");  
 	    FileHandler fileHandler;
 	    
@@ -33,11 +25,11 @@ public class SimpleSender {
 		int port = Integer.parseInt(System.getProperty("port"));
 		String channel = System.getProperty("channel");
 		String qm = System.getProperty("qmgr");
-		String senderQ = System.getProperty("senderQ");
+		String receiverQ = System.getProperty("receiverQ");
 		String APP_USER = System.getProperty("user"); // User name that application uses to connect to MQ
 		String APP_PASSWORD = System.getProperty("pwd"); // Password that the application uses to connect to MQ
-		int nuOfMessages = Integer.parseInt(System.getProperty("numsgs"));
 		String logfile = System.getProperty("logFile");
+		int nuOfMessages = Integer.parseInt(System.getProperty("numsgs"));
 
 		try {
 			fileHandler = new FileHandler(logfile);  
@@ -59,17 +51,23 @@ public class SimpleSender {
 			logger.info("Connecting to "+qm+" at "+hostname+":"+port + " via channel: " + channel);
 			JMSContext context = cf.createContext();
 			
-			JMSProducer prod = context.createProducer();
-			Queue senderQueue = context.createQueue(senderQ);
+			Queue receiverQueue = context.createQueue(receiverQ);
+			JMSConsumer consumer = context.createConsumer(receiverQueue);
 			
-			for (int i=0;i<nuOfMessages;i++)
+			int msgCount=0;
+			while (msgCount<nuOfMessages)
 			{
-				TextMessage textMessage = context.createTextMessage();
-				textMessage.setText("AJ Message:" + UUID.randomUUID().toString());
-				prod.send(senderQueue, textMessage);
+				TextMessage msgReceived=(TextMessage) consumer.receive();
+				if(msgReceived.getText().contains("AJ Message:")) {
+					msgCount++;
+				}
+				else {
+					logger.info("Incorrect Message Received: " + msgReceived.getText() );
+					break;
+				}
 			}
 
-			logger.info(nuOfMessages+ " messages Sent: ");
+			logger.info(nuOfMessages+ " messages received: ");
 			
 			context.close();
 			logger.info("Connection closed!");
@@ -81,5 +79,7 @@ public class SimpleSender {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+
 	}
+
 }
