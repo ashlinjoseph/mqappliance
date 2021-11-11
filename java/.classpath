@@ -2,6 +2,7 @@
 <classpath>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="C:/Users/aj/Documents/9.1.0.5-IBM-MQ-Install-Java-All/wmq/JavaSE/com.ibm.mq.allclient.jar"/>
+	<classpathentry kind="lib" path="/Users/aj/gitWorkspace/resources/com.ibm.mq.allclient.jar-0.0.0.1.jar"/>
+	<classpathentry kind="lib" path="/Users/aj/gitWorkspace/resources/javax.jms-api-2.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
