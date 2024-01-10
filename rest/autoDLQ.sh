@@ -23,8 +23,8 @@
   ##  managers in a given MQ Appliance after creating all the required MQ Objects. 		##
   ##  The script will then monitor the dead letter queue handlers to check if they 		##
   ##  running smoothly. If any of the handlers process dies, a new one is deployed.		##
-  ##  If any of the MQ Objects required are deleted, it'll be recreated. If a new       ##
-  ##  queue manager is created in the appliance, the script will deploy all the objects ##
+  ##  If any of the MQ Objects required are deleted, it'll be recreated. If a new		##
+  ##  queue manager is created in the appliance, the script will deploy all the objects	##
   ##  need and it'll deploy a new dead letter queue handler for that queue manager 		##
   ##  This script is built using Curl and jq.                                   		##
   ##    Curl: https://curl --silent.haxx.se/docs/manpage.html                   		##
